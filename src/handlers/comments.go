@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
@@ -9,6 +9,7 @@ import (
 
 type Comment struct {
 	ID           int       `json:"id"`
+	PostID       int       `json:"post_id"`
 	Author       User      `json:"author"`
 	Content      string    `json:"content"`
 	CreationDate time.Time `json:"creation_date"`

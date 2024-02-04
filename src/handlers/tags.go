@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
@@ -14,7 +14,7 @@ type Tag struct {
 	PostsIDs     []int     `json:"posts_ids"`
 }
 
-// CommentHandler хранит теги и обеспечивает потокобезопасный доступ
+// TagHandler хранит теги и обеспечивает потокобезопасный доступ
 type TagHandler struct {
 	sync.Mutex
 	tags   map[int]Tag

@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
@@ -12,7 +12,6 @@ type Post struct {
 	Author       User      `json:"author"`
 	Header       string    `json:"post_header"`
 	Body         string    `json:"post_body"`
-	CommentsIDs  []int     `json:"post_comments_ids"`
 	CreationDate time.Time `json:"creation_date"`
 }
 
