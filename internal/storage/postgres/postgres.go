@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"db-service-homework-kodzimo/internal/config"
+	"db-service-homework-kodzimo/pkg/config"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"

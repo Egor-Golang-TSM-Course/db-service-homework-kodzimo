@@ -1,8 +1,8 @@
 package storage
 
 import (
-	"db-service-homework-kodzimo/internal/config"
 	"db-service-homework-kodzimo/internal/storage/postgres"
+	"db-service-homework-kodzimo/pkg/config"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"db-service-homework-kodzimo/internal/config"
 	"db-service-homework-kodzimo/internal/storage"
+	"db-service-homework-kodzimo/pkg/config"
 	"github.com/sirupsen/logrus"
 )
 
@@ -26,4 +26,5 @@ func main() {
 	}
 
 	_ = st
+
 }
