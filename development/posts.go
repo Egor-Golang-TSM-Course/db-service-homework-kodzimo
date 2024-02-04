@@ -1,6 +1,7 @@
-package handlers
+package development
 
 import (
+	"db-service-homework-kodzimo/internal/handlers"
 	"encoding/json"
 	"net/http"
 	"sync"
@@ -8,11 +9,11 @@ import (
 )
 
 type Post struct {
-	ID           int       `json:"post_id"`
-	Author       User      `json:"author"`
-	Header       string    `json:"post_header"`
-	Body         string    `json:"post_body"`
-	CreationDate time.Time `json:"creation_date"`
+	ID           int           `json:"post_id"`
+	Author       handlers.User `json:"author"`
+	Header       string        `json:"post_header"`
+	Body         string        `json:"post_body"`
+	CreationDate time.Time     `json:"creation_date"`
 }
 
 // PostHandler хранит посты и обеспечивает потокобезопасный доступ

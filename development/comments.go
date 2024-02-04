@@ -1,6 +1,7 @@
-package handlers
+package development
 
 import (
+	"db-service-homework-kodzimo/internal/handlers"
 	"encoding/json"
 	"net/http"
 	"sync"
@@ -8,11 +9,11 @@ import (
 )
 
 type Comment struct {
-	ID           int       `json:"id"`
-	PostID       int       `json:"post_id"`
-	Author       User      `json:"author"`
-	Content      string    `json:"content"`
-	CreationDate time.Time `json:"creation_date"`
+	ID           int           `json:"id"`
+	PostID       int           `json:"post_id"`
+	Author       handlers.User `json:"author"`
+	Content      string        `json:"content"`
+	CreationDate time.Time     `json:"creation_date"`
 }
 
 // CommentHandler хранит комментарии и обеспечивает потокобезопасный доступ

@@ -1,7 +1,12 @@
 package handlers
 
 import (
+	"db-service-homework-kodzimo/internal/storage"
+	"db-service-homework-kodzimo/pkg/config"
 	"encoding/json"
+	"fmt"
+	"github.com/sirupsen/logrus"
+	"log"
 	"net/http"
 	"sync"
 )
@@ -22,27 +27,43 @@ var Admin Role = Role{Read: true, Write: true, Delete: true}
 var Member Role = Role{Read: true, Write: true, Delete: false}
 var Guest Role = Role{Read: true, Write: false, Delete: false}
 
-// UserHandler хранит пользователей и обеспечивает потокобезопасный доступ
-type UserHandler struct {
+// UserHandlerStruct хранит пользователей и обеспечивает потокобезопасный доступ
+type UserHandlerStruct struct {
 	sync.Mutex
 	users  map[int]User
 	nextID int
 }
 
-func (h *UserHandler) getAllUsers(w http.ResponseWriter, r *http.Request) {
+// swagger:route GET /payload payloads REST_Task
+// Get payload with given ID.
+// responses:
+//
+//	200: map[int]User
+//	500: ServerError
+//	404: ServerError
+func (h *UserHandlerStruct) getAllUsers(w http.ResponseWriter, r *http.Request) {
 	h.Lock()
 	defer h.Unlock()
+	cfg := config.ReadEnv("")
 
-	err := json.NewEncoder(w).Encode(h.users)
-	if err != nil {
-		http.Error(w, "json.NewEncoder(w).Encode error", http.StatusInternalServerError)
-		return
-	}
+	ll := logrus.New()
+	st, err := storage.NewStorage(cfg, ll)
 
 	// Здесь должна быть описана логика фунции
+	users, err := st.Postgres.GetAllUsers()
+	if err != nil {
+		defer println("getAllUsers func: ")
+		ll.Fatal(err)
+	}
+
+	err = json.NewEncoder(w).Encode(users)
+	if err != nil {
+		http.Error(w, "json.NewEncoder(w).Encode error", http.StatusInternalServerError)
+		return
+	}
 }
 
-func (h *UserHandler) registerUser(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandlerStruct) registerUser(w http.ResponseWriter, r *http.Request) {
 	h.Lock()
 	defer h.Unlock()
 
@@ -56,7 +77,7 @@ func (h *UserHandler) registerUser(w http.ResponseWriter, r *http.Request) {
 	// Запрос POST
 }
 
-func (h *UserHandler) authenticateUser(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandlerStruct) authenticateUser(w http.ResponseWriter, r *http.Request) {
 	h.Lock()
 	defer h.Unlock()
 
@@ -70,7 +91,7 @@ func (h *UserHandler) authenticateUser(w http.ResponseWriter, r *http.Request) {
 	// Запрос POST
 }
 
-func (h *UserHandler) deleteUser(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandlerStruct) deleteUser(w http.ResponseWriter, r *http.Request) {
 	h.Lock()
 	defer h.Unlock()
 
@@ -83,15 +104,17 @@ func (h *UserHandler) deleteUser(w http.ResponseWriter, r *http.Request) {
 	// Здеcь должна быть описана логика фунции
 }
 
-func userHandler() {
-	handler := &UserHandler{
-		users:  make(map[int]User, 0),
+func UserHandler() {
+	handler := &UserHandlerStruct{
+		users:  make(map[int]User),
 		nextID: 1,
 	}
 
 	http.HandleFunc("/users", handler.getAllUsers)
-	http.HandleFunc("/users/register", handler.registerUser)
-	http.HandleFunc("/users/login", handler.authenticateUser)
-	http.HandleFunc("/users/delete", handler.deleteUser)
+	//http.HandleFunc("/users/register", handler.registerUser)
+	//http.HandleFunc("/users/login", handler.authenticateUser)
+	//http.HandleFunc("/users/delete", handler.deleteUser)
+	fmt.Println("Starting server on :8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 
 }

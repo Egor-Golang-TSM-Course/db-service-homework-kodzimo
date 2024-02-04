@@ -1,6 +1,7 @@
 package main
 
 import (
+	"db-service-homework-kodzimo/internal/handlers"
 	"db-service-homework-kodzimo/internal/storage"
 	"db-service-homework-kodzimo/pkg/config"
 	"github.com/sirupsen/logrus"
@@ -27,4 +28,5 @@ func main() {
 
 	_ = st
 
+	handlers.UserHandler()
 }
