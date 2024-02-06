@@ -25,16 +25,16 @@ func NewPostgres(cfg *config.Config, logger *log.Logger) (*PostgresDB, error) {
 	connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName)
 
-	ommitesStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s ",
-		cfg.DBHost, cfg.DBPort, cfg.DBUser, "[ommited]", cfg.DBName)
+	//ommitesStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s ",
+	//	cfg.DBHost, cfg.DBPort, cfg.DBUser, "[ommited]", cfg.DBName)
 
 	// Принтим connectionString без пароля
-	log.Info("current connection string: ", connectionString)
+	//log.Info("current connection string: ", connectionString)
 
 	// Создаём подключение к бд. Одно соединение менеджит множество подключений к бд в горутинах
 	db, err := sqlx.Connect("postgres", connectionString)
 	if err != nil {
-		logger.Errorf("could not establish connection to %s %s", ommitesStr, err)
+		logger.Errorf("could not establish connection to %s %s", connectionString, err)
 		return nil, errors.WithStack(err)
 	}
 

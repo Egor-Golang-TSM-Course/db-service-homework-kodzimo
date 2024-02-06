@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
@@ -36,7 +35,7 @@ func ReadEnv(path string) *Config {
 	}
 
 	// Print the configuration (or you can use it as needed)
-	fmt.Printf("Config: %+v\n", config)
+	//fmt.Printf("Config: %+v\n", config)
 	return &config
 }
 

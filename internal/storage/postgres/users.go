@@ -16,9 +16,9 @@ type Role struct {
 	Delete bool
 }
 
-func (p *PostgresDB) GetAllUsers() (map[int]User, error) {
+func (p *PostgresDB) GetAllUsers() ([]User, error) {
 
-	var users map[int]User
+	var users []User
 
 	query := `SELECT * FROM blog.users;`
 	err := p.DB.Select(&users, query)
@@ -42,4 +42,9 @@ func (p *PostgresDB) GetAllUsers() (map[int]User, error) {
 	//}
 
 	return users, nil
+}
+
+func (p *PostgresDB) RegisterUser(u []User) (err error) {
+
+	return
 }
