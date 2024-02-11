@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"db-service-homework-kodzimo/internal/storage"
+	"db-service-homework-kodzimo/internal/storage/postgres"
 	"db-service-homework-kodzimo/pkg/config"
 	"encoding/json"
 	"fmt"
@@ -11,26 +12,16 @@ import (
 	"sync"
 )
 
-type User struct {
-	ID   int    `json:"user_id"`
-	Name string `json:"user_name"`
-	Role Role   `json:"user_role"`
-}
-
 type Role struct {
 	Read   bool
 	Write  bool
 	Delete bool
 }
 
-var Admin Role = Role{Read: true, Write: true, Delete: true}
-var Member Role = Role{Read: true, Write: true, Delete: false}
-var Guest Role = Role{Read: true, Write: false, Delete: false}
-
 // UserHandlerStruct хранит пользователей и обеспечивает потокобезопасный доступ
 type UserHandlerStruct struct {
 	sync.Mutex
-	users  []User
+	users  []postgres.User
 	nextID int
 }
 
@@ -68,14 +59,34 @@ func (h *UserHandlerStruct) registerUser(w http.ResponseWriter, r *http.Request)
 	cfg := config.ReadEnv("")
 
 	ll := logrus.New()
-	st, err := storage.NewStorage(cfg, ll)
+	st, _ := storage.NewStorage(cfg, ll)
 
 	switch r.Method {
-	case "GET":
 	case "POST":
-		st.Postgres.RegisterUser()
+		var newUser postgres.User
+		err := json.NewDecoder(r.Body).Decode(&newUser)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		_, err = fmt.Fprintf(w, "User: %+v", newUser.Name)
+		if err != nil {
+			return
+		}
+		err = st.Postgres.RegisterUser(newUser)
+		if err != nil {
+			return
+		}
+	case "GET":
+		//err := st.Postgres.RegisterUser()
+		//if err != nil {
+		//	return
+		//}
 	}
-	fmt.Fprintf(w, "Hello, you've requested: %s\n", r.URL.Path)
+	_, err := fmt.Fprintf(w, "Hello, you've requested: %s\n", r.URL.Path)
+	if err != nil {
+		return
+	}
 
 	// Здеcь должна быть описана логика фунции
 	// Запрос POST
@@ -110,7 +121,7 @@ func (h *UserHandlerStruct) deleteUser(w http.ResponseWriter, r *http.Request) {
 
 func UserHandler() {
 	handler := &UserHandlerStruct{
-		users:  make([]User, 0),
+		users:  make([]postgres.User, 0),
 		nextID: 1,
 	}
 

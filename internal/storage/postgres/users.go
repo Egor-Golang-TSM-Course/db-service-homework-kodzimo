@@ -5,9 +5,9 @@ import (
 )
 
 type User struct {
-	ID   int    `json:"user_id"`
-	Name string `json:"user_name"`
-	Role Role   `json:"user_role"`
+	ID   *int    `json:"user_id"`
+	Name string  `json:"user_name"`
+	Role *string `json:"user_role"`
 }
 
 type Role struct {
@@ -15,6 +15,10 @@ type Role struct {
 	Write  bool
 	Delete bool
 }
+
+var admin *Role = &Role{Read: true, Write: true, Delete: true}
+var member *Role = &Role{Read: true, Write: true, Delete: false}
+var guest *Role = &Role{Read: true, Write: false, Delete: false}
 
 func (p *PostgresDB) GetAllUsers() ([]User, error) {
 
@@ -44,7 +48,22 @@ func (p *PostgresDB) GetAllUsers() ([]User, error) {
 	return users, nil
 }
 
-func (p *PostgresDB) RegisterUser(u []User) (err error) {
+func (p *PostgresDB) RegisterUser(newUser User) error {
+	//role := "admin"
+	//var newUser = User{Name: "John", Role: &role}
+	newUserName := newUser.Name
+	newUserRole := newUser.Role
 
-	return
+	println(newUserName)
+
+	sqlStatement := `
+        INSERT INTO blog.users (name, role)
+        VALUES ($1, $2);
+        `
+	_, err := p.DB.Exec(sqlStatement, newUserName, newUserRole)
+	if err != nil {
+		log.Error("Failed to insert row %d: %v", err)
+		return err
+	}
+	return nil
 }
