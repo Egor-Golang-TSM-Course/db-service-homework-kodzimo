@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"sync"
+	"time"
 )
 
 type Role struct {
@@ -95,15 +96,40 @@ func (h *UserHandlerStruct) registerUser(w http.ResponseWriter, r *http.Request)
 func (h *UserHandlerStruct) authenticateUser(w http.ResponseWriter, r *http.Request) {
 	h.Lock()
 	defer h.Unlock()
+	cfg := config.ReadEnv("")
 
-	err := json.NewEncoder(w).Encode(h.users)
-	if err != nil {
-		http.Error(w, "json.NewEncoder(w).Encode error", http.StatusInternalServerError)
-		return
-	}
+	ll := logrus.New()
+	st, _ := storage.NewStorage(cfg, ll)
 
 	// Здеcь должна быть описана логика фунции
 	// Запрос POST
+
+	type Credentials struct {
+		Username string `json:"user_name"`
+		Password string `json:"user_password"`
+	}
+
+	var creds Credentials
+
+	// Декодируем учетные данные из тела запроса
+	err := json.NewDecoder(r.Body).Decode(&creds)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Проверяем учетные данные пользователя
+	isValid := st.Postgres.CheckCredentials(creds.Username, creds.Password)
+
+	if !isValid {
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
+	}
+
+	// Если учетные данные верны, создаем сессию
+	expiration := time.Now().Add(365 * 24 * time.Hour)
+	cookie := http.Cookie{Name: "username", Value: creds.Username, Expires: expiration}
+	http.SetCookie(w, &cookie)
 }
 
 func (h *UserHandlerStruct) deleteUser(w http.ResponseWriter, r *http.Request) {
@@ -127,7 +153,7 @@ func UserHandler() {
 
 	http.HandleFunc("/users", handler.getAllUsers)
 	http.HandleFunc("/users/register", handler.registerUser)
-	//http.HandleFunc("/users/login", handler.authenticateUser)
+	http.HandleFunc("/users/login", handler.authenticateUser)
 	//http.HandleFunc("/users/delete", handler.deleteUser)
 	fmt.Println("Starting server on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
